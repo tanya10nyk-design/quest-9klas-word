@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Вебквест 9 клас НУШ: Системи опрацювання текстів (§ 2.1)</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --card-light: #334155;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --success: #22c55e;
+      --error: #ef4444;
+      --warning: #f59e0b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 820px;
+      background: var(--card);
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+      border: 1px solid #334155;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--card-light);
+      padding-bottom: 15px;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .badge {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: var(--bg);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 25px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #38bdf8, #818cf8);
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+
+    h2 {
+      font-size: 1.3rem;
+      color: var(--accent);
+      margin-bottom: 15px;
+    }
+
+    p {
+      color: #cbd5e1;
+      margin-bottom: 15px;
+    }
+
+    input[type="text"], select {
+      width: 100%;
+      padding: 12px 15px;
+      border-radius: 8px;
+      border: 1px solid var(--card-light);
+      background: var(--bg);
+      color: #fff;
+      font-size: 1rem;
+      margin-bottom: 15px;
+    }
+
+    input[type="text"]:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .task-row {
+      background: rgba(15, 23, 42, 0.6);
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      border: 1px solid var(--card-light);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .task-row label {
+      font-weight: 500;
+      color: #e2e8f0;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .option-card {
+      background: var(--bg);
+      border: 2px solid var(--card-light);
+      border-radius: 10px;
+      padding: 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .option-card:hover {
+      border-color: var(--accent);
+    }
+
+    .option-card.selected {
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.12);
+    }
+
+    .btn {
+      background: var(--accent);
+      color: #0f172a;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      background: var(--accent-hover);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: var(--card-light);
+      color: #fff;
+    }
+
+    .btn-secondary:hover {
+      background: #475569;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .feedback {
+      margin-top: 15px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-weight: 500;
+      display: none;
+    }
+
+    .feedback.error {
+      display: block;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid var(--error);
+      color: #fca5a5;
+    }
+
+    .feedback.success {
+      display: block;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid var(--success);
+      color: #86efac;
+    }
+
+    .hint-box {
+      background: rgba(245, 158, 11, 0.1);
+      border-left: 4px solid var(--warning);
+      padding: 12px 15px;
+      border-radius: 0 8px 8px 0;
+      margin-top: 15px;
+      font-size: 0.92rem;
+      color: #fde68a;
+      display: none;
+    }
+
+    .step {
+      display: none;
+    }
+
+    .step.active {
+      display: block;
+      animation: fadeIn 0.35s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .certificate {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      border: 2px solid var(--accent);
+      border-radius: 14px;
+      padding: 25px;
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .cert-code {
+      font-family: monospace;
+      background: #000;
+      padding: 8px 14px;
+      border-radius: 6px;
+      color: var(--success);
+      display: inline-block;
+      margin-top: 10px;
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+    }
+
+    .seq-item {
+      background: var(--bg);
+      border: 1px solid var(--card-light);
+      padding: 12px 15px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .seq-item.picked {
+      border-color: var(--success);
+      background: rgba(34, 197, 94, 0.1);
+    }
+
+    .seq-badge {
+      background: var(--card-light);
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div>
+      <span class="badge">Інформатика • 9 клас НУШ</span>
+      <span class="badge">§ 2.1. Системи опрацювання текстів</span>
+    </div>
+    <div id="scoreDisplay" style="font-weight: 600; color: var(--accent);">Бали: 12 / 12</div>
+  </header>
+
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <!-- ВСТУП -->
+  <div class="step active" id="step-0">
+    <h1>Операція «Архітектор Текстів»</h1>
+    <p>Вітаємо у цифровій редакції <strong>«НУШ-Медіа»</strong>! Через критичний збій система керування документами заблокувала макет нового випуску. Твоє завдання — пройти 5 терміналів перевірки та відновити доступ.</p>
+    <p><em>Правило оцінювання:</em> ти стартуєш із максимумом у <strong>12 балів</strong>. Кожна невдала спроба перевірки або відкрита підказка знімає 0.5 бала.</p>
+    
+    <label for="studentName" style="display:block; margin-bottom:8px; font-weight:600;">Введи своє прізвище, ім'я та клас для реєстрації в системі:</label>
+    <input type="text" id="studentName" placeholder="Наприклад: Коваленко Максим, 9-А" />
+    
+    <div id="fb-0" class="feedback"></div>
+    <div class="controls">
+      <button class="btn" onclick="startQuest()">Розпочати місію →</button>
+    </div>
+  </div>
+
+  <!-- ЕТАП 1: Класифікація систем опрацювання текстів -->
+  <div class="step" id="step-1">
+    <h2>Термінал 1/5: Класифікація ПЗ</h2>
+    <p>Підбери правильний тип системи опрацювання текстів для кожного робочого завдання редакції:</p>
+
+    <div class="task-row">
+      <label>1. Програміст пише код мовою Python або створює простий HTML-шаблон без форматування:</label>
+      <select id="q1_1">
+        <option value="">-- Обери клас програм --</option>
+        <option value="editor">Текстовий редактор (Блокнот, Kate)</option>
+        <option value="processor">Текстовий процесор (Word, Google Docs)</option>
+        <option value="dtp">Видавнича система (Adobe InDesign, Scribus)</option>
+        <option value="ocr">Система оптичного розпізнавання (Tesseract)</option>
+      </select>
+    </div>
+
+    <div class="task-row">
+      <label>2. Дизайнер готує складний макет багатосторінкової книги до друку в типографії:</label>
+      <select id="q1_2">
+        <option value="">-- Обери клас програм --</option>
+        <option value="speech">Система розпізнавання мовлення</option>
+        <option value="dtp">Видавнича система (Adobe InDesign, QuarkXPress)</option>
+        <option value="editor">Текстовий редактор</option>
+        <option value="science">Редактор наукових документів (LaTeX)</option>
+      </select>
+    </div>
+
+    <div class="task-row">
+      <label>3. Науковець оформлює статтю зі складними хімічними та математичними формулами:</label>
+      <select id="q1_3">
+        <option value="">-- Обери клас програм --</option>
+        <option value="science">Редактор наукових документів (LaTeX, MathType)</option>
+        <option value="translate">Система машинного перекладу (DeepL)</option>
+        <option value="processor">Текстовий процесор</option>
+        <option value="ocr">Система оптичного розпізнавання</option>
+      </select>
+    </div>
+
+    <div class="task-row">
+      <label>4. Архіваріус перетворює відскановане зображення старої газети на редагований текст:</label>
+      <select id="q1_4">
+        <option value="">-- Обери клас програм --</option>
+        <option value="dtp">Видавнича система</option>
+        <option value="ocr">Система оптичного розпізнавання текстів (OCR)</option>
+        <option value="speech">Система розпізнавання мовлення (Speech-to-Text)</option>
+        <option value="editor">Текстовий редактор</option>
+      </select>
+    </div>
+
+    <div id="hint-1" class="hint-box">
+      <strong>Підказка (§ 2.1, с. 42):</strong> Прості тексти та код пишуть у текстових редакторах; формули верстають у LaTeX/MathType; макети для поліграфії — у видавничих системах; скан-копії перетворюють на текст за допомогою OCR.
+    </div>
+    <div id="fb-1" class="feedback"></div>
+
+    <div class="controls">
+      <button class="btn btn-secondary" onclick="showHint(1)">💡 Підказка (-0.5 б.)</button>
+      <button class="btn" onclick="checkStep1()">Підтвердити вибір →</button>
+    </div>
+  </div>
+
+  <!-- ЕТАП 2: Об'єкти та властивості -->
+  <div class="step" id="step-2">
+    <h2>Термінал 2/5: Об'єкти текстового документа</h2>
+    <p>У макеті збилися налаштування форматування. Визнач, якому об'єкту документа належить кожен набір властивостей:</p>
+
+    <div class="task-row">
+      <label>1. Розмір аркуша, орієнтація (книжкова/альбомна), розміри полів, колонтитули:</label>
+      <select id="q2_1">
+        <option value="">-- Обери об'єкт --</option>
+        <option value="symbol">Символ</option>
+        <option value="paragraph">Абзац</option>
+        <option value="page">Сторінка</option>
+        <option value="image">Малюнок</option>
+      </select>
+    </div>
+
+    <div class="task-row">
+      <label>2. Відступ першого рядка, вирівнювання, міжрядковий інтервал:</label>
+      <select id="q2_2">
+        <option value="">-- Обери об'єкт --</option>
+        <option value="symbol">Символ</option>
+        <option value="paragraph">Абзац</option>
+        <option value="page">Сторінка</option>
+        <option value="table">Таблиця</option>
+      </select>
+    </div>
+
+    <div class="task-row">
+      <label>3. Шрифт, розмір (кегль), колір, накреслення, інтервал між літерами:</label>
+      <select id="q2_3">
+        <option value="">-- Обери об'єкт --</option>
+        <option value="symbol">Символ</option>
+        <option value="paragraph">Абзац</option>
+        <option value="page">Сторінка</option>
+        <option value="image">Малюнок</option>
+      </select>
+    </div>
+
+    <div class="task-row">
+      <label>4. Тип, положення на сторінці, обтікання текстом:</label>
+      <select id="q2_4">
+        <option value="">-- Обери об'єкт --</option>
+        <option value="table">Таблиця</option>
+        <option value="paragraph">Абзац</option>
+        <option value="page">Сторінка</option>
+        <option value="image">Малюнок</option>
+      </select>
+    </div>
+
+    <div id="hint-2" class="hint-box">
+      <strong>Підказка (§ 2.1, табл. 2.1):</strong> Шрифт і накреслення стосуються окремого <em>символу</em>; відступи та міжрядкові інтервали — <em>абзацу</em>; поля та орієнтація — <em>сторінки</em>; обтікання текстом — <em>малюнка</em>.
+    </div>
+    <div id="fb-2" class="feedback"></div>
+
+    <div class="controls">
+      <button class="btn btn-secondary" onclick="showHint(2)">💡 Підказка (-0.5 б.)</button>
+      <button class="btn" onclick="checkStep2()">Синхронізувати об'єкти →</button>
+    </div>
+  </div>
+
+  <!-- ЕТАП 3: Формати файлів -->
+  <div class="step" id="step-3">
+    <h2>Термінал 3/5: Архітектура форматів файлів</h2>
+    <p>Обери один формат файлу, який <strong>ідеально</strong> відповідає умові задачі:</p>
+
+    <div class="task-row">
+      <label>Задача А: Потрібно надіслати макет замовнику так, щоб документ виглядав однаково на Windows, macOS, Linux та смартфоні, навіть якщо там не встановлені потрібні шрифти:</label>
+      <div class="options-grid" id="grid-3a">
+        <div class="option-card" onclick="selectCard('3a', 'TXT', this)"><strong>TXT</strong><br><small>Тільки текст без форматування</small></div>
+        <div class="option-card" onclick="selectCard('3a', 'PDF', this)"><strong>PDF</strong><br><small>Стандарт обміну електронними документами</small></div>
+        <div class="option-card" onclick="selectCard('3a', 'ODT', this)"><strong>ODT</strong><br><small>Стандарт для LibreOffice / OpenOffice</small></div>
+      </div>
+    </div>
+
+    <div class="task-row">
+      <label>Задача Б: Потрібно зберегти документ у стандартному форматі Microsoft Word, який забезпечує стиснення файлу до 70% та краще відновлення після пошкоджень:</label>
+      <div class="options-grid" id="grid-3b">
+        <div class="option-card" onclick="selectCard('3b', 'RTF', this)"><strong>RTF</strong><br><small>Кросплатформний обмінний формат</small></div>
+        <div class="option-card" onclick="selectCard('3b', 'DOCX', this)"><strong>DOCX</strong><br><small>Сучасний стандарт MS Word</small></div>
+        <div class="option-card" onclick="selectCard('3b', 'TXT', this)"><strong>TXT</strong><br><small>Простий текстовий файл</small></div>
+      </div>
+    </div>
+
+    <div id="hint-3" class="hint-box">
+      <strong>Підказка (§ 2.1, табл. 2.2):</strong> <em>PDF</em> зберігає вигляд документа незалежно від пристрою та ОС. <em>DOCX</em> є стандартним форматом Word із високим рівнем стиснення (до 70%).
+    </div>
+    <div id="fb-3" class="feedback"></div>
+
+    <div class="controls">
+      <button class="btn btn-secondary" onclick="showHint(3)">💡 Підказка (-0.5 б.)</button>
+      <button class="btn" onclick="checkStep3()">Зберегти файли →</button>
+    </div>
+  </div>
+
+  <!-- ЕТАП 4: Режими перегляду -->
+  <div class="step" id="step-4">
+    <h2>Термінал 4/5: Режими перегляду документа</h2>
+    <p>Редакторам потрібно швидко виконати три дії. Обери режим перегляду (вкладка <em>Подання</em>) для кожної з них:</p>
+
+    <div class="task-row">
+      <label>1. Побачити ієрархію заголовків та швидко змінити порядок розділів у великому документі:</label>
+      <select id="q4_1">
+        <option value="">-- Обери режим --</option>
+        <option value="print">Макет друку</option>
+        <option value="web">Вебмакет</option>
+        <option value="outline">Структура</option>
+        <option value="draft">Чернетка</option>
+      </select>
+    </div>
+
+    <div class="task-row">
+      <label>2. Швидко редагувати лише вміст тексту у спрощеному вигляді, без відображення полів сторінки та колонтитулів:</label>
+      <select id="q4_2">
+        <option value="">-- Обери режим --</option>
+        <option value="read">Режим читання</option>
+        <option value="draft">Чернетка</option>
+        <option value="print">Макет друку</option>
+        <option value="web">Вебмакет</option>
+      </select>
+    </div>
+
+    <div class="task-row">
+      <label>3. Перевірити, як саме виглядатиме сторінка на папері перед відправленням на принтер (принцип WYSIWYG):</label>
+      <select id="q4_3">
+        <option value="">-- Обери режим --</option>
+        <option value="print">Макет друку</option>
+        <option value="outline">Структура</option>
+        <option value="draft">Чернетка</option>
+        <option value="web">Вебмакет</option>
+      </select>
+    </div>
+
+    <div id="hint-4" class="hint-box">
+      <strong>Підказка (§ 2.1, табл. 2.3):</strong> Ієрархію заголовків показує <em>Структура</em>; спрощений текст без форматування сторінки — <em>Чернетка</em>; вигляд для принтера — <em>Макет друку</em>.
+    </div>
+    <div id="fb-4" class="feedback"></div>
+
+    <div class="controls">
+      <button class="btn btn-secondary" onclick="showHint(4)">💡 Підказка (-0.5 б.)</button>
+      <button class="btn" onclick="checkStep4()">Застосувати подання →</button>
+    </div>
+  </div>
+
+  <!-- ЕТАП 5: Робота з кількома документами -->
+  <div class="step" id="step-5">
+    <h2>Термінал 5/5: Синхронне звіряння версій</h2>
+    <p>У редакції відкрито два файли: <code>стаття_чернетка.docx</code> та <code>стаття_фінал.docx</code>. Клікай по діях у <strong>правильному порядку</strong>, щоб розмістити їх поруч на одному екрані та порівняти:</p>
+
+    <div id="sequenceContainer">
+      <div class="seq-item" data-id="3" onclick="toggleSeq(this)">
+        <span>Обрати в списку відкритих документів потрібний файл для порівняння</span>
+        <span class="seq-badge">Клікни</span>
+      </div>
+      <div class="seq-item" data-id="1" onclick="toggleSeq(this)">
+        <span>Перейти на вкладку «Подання» у стрічці текстового процесора</span>
+        <span class="seq-badge">Клікни</span>
+      </div>
+      <div class="seq-item" data-id="4" onclick="toggleSeq(this)">
+        <span>Прокрутити текст із увімкненою кнопкою «Синхронне прокручування»</span>
+        <span class="seq-badge">Клікни</span>
+      </div>
+      <div class="seq-item" data-id="2" onclick="toggleSeq(this)">
+        <span>У групі «Вікно» натиснути кнопку «Переглянути поруч»</span>
+        <span class="seq-badge">Клікни</span>
+      </div>
+    </div>
+
+    <div id="hint-5" class="hint-box">
+      <strong>Підказка (§ 2.1, с. 46):</strong> Алгоритм: 1) Вкладка <em>Подання</em> → 2) Група <em>Вікно → Переглянути поруч</em> → 3) Вибір другого документа зі списку → 4) <em>Синхронне прокручування</em>.
+    </div>
+    <div id="fb-5" class="feedback"></div>
+
+    <div class="controls">
+      <button class="btn btn-secondary" onclick="resetSeq()">↺ Скинути порядок</button>
+      <button class="btn btn-secondary" onclick="showHint(5)">💡 Підказка (-0.5 б.)</button>
+      <button class="btn" onclick="checkStep5()">Розблокувати сервер →</button>
+    </div>
+  </div>
+
+  <!-- ФІНАЛ -->
+  <div class="step" id="step-6">
+    <h1>🎉 Місію виконано! Доступ відновлено</h1>
+    <p>Ти успішно впорався з усіма завданнями за параграфом <strong>2.1 «Системи опрацювання текстів»</strong>. Зроби скріншот цього сертифіката або передай код перевірки вчителю:</p>
+
+    <div class="certificate">
+      <div style="color: var(--accent); font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">Сертифікат проходження вебквесту</div>
+      <h2 id="certName" style="color: #fff; font-size: 1.5rem; margin: 12px 0;"></h2>
+      <p style="margin-bottom: 8px;">Оцінка за 12-бальною шкалою НУШ: <strong id="certScore" style="color: var(--success); font-size: 1.3rem;"></strong></p>
+      <p style="margin-bottom: 8px;">Час виконання: <strong id="certTime"></strong></p>
+      <div style="font-size: 0.85rem; color: var(--muted); margin-top: 12px;">Код верифікації результату:</div>
+      <div class="cert-code" id="certHash"></div>
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-secondary" onclick="location.reload()">Пройти ще раз</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let score = 12.0;
+  let currentStep = 0;
+  let startTime = null;
+  let studentName = "";
+  let hintsUsed = {};
+  let cardAnswers = { '3a': '', '3b': '' };
+  let pickedSequence = [];
+
+  function updateScore(delta) {
+    score = Math.max(1, +(score + delta).toFixed(1));
+    document.getElementById('scoreDisplay').textContent = `Бали: ${score} / 12`;
+  }
+
+  function goToStep(stepNum) {
+    document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+    document.getElementById(`step-${stepNum}`).classList.add('active');
+    currentStep = stepNum;
+    const progress = Math.min(100, Math.round((stepNum / 6) * 100));
+    document.getElementById('progressFill').style.width = `${progress}%`;
+  }
+
+  function showFeedback(step, msg, isSuccess = false) {
+    const fb = document.getElementById(`fb-${step}`);
+    fb.textContent = msg;
+    fb.className = 'feedback ' + (isSuccess ? 'success' : 'error');
+  }
+
+  function showHint(step) {
+    if (!hintsUsed[step]) {
+      hintsUsed[step] = true;
+      updateScore(-0.5);
+    }
+    document.getElementById(`hint-${step}`).style.display = 'block';
+  }
+
+  function startQuest() {
+    const input = document.getElementById('studentName').value.trim();
+    if (input.length < 3) {
+      showFeedback(0, "Будь ласка, введи своє прізвище, ім'я та клас.");
+      return;
+    }
+    studentName = input;
+    startTime = Date.now();
+    goToStep(1);
+  }
+
+  function checkStep1() {
+    const a1 = document.getElementById('q1_1').value;
+    const a2 = document.getElementById('q1_2').value;
+    const a3 = document.getElementById('q1_3').value;
+    const a4 = document.getElementById('q1_4').value;
+
+    if (!a1 || !a2 || !a3 || !a4) {
+      showFeedback(1, "Обери варіанти для всіх чотирьох завдань.");
+      return;
+    }
+
+    if (a1 === 'editor' && a2 === 'dtp' && a3 === 'science' && a4 === 'ocr') {
+      goToStep(2);
+    } else {
+      updateScore(-0.5);
+      showFeedback(1, "Є помилка в класифікації програм. Перевір уважно призначення кожної системи (-0.5 б.).");
+    }
+  }
+
+  function checkStep2() {
+    const a1 = document.getElementById('q2_1').value;
+    const a2 = document.getElementById('q2_2').value;
+    const a3 = document.getElementById('q2_3').value;
+    const a4 = document.getElementById('q2_4').value;
+
+    if (!a1 || !a2 || !a3 || !a4) {
+      showFeedback(2, "Заповни всі чотири поля.");
+      return;
+    }
+
+    if (a1 === 'page' && a2 === 'paragraph' && a3 === 'symbol' && a4 === 'image') {
+      goToStep(3);
+    } else {
+      updateScore(-0.5);
+      showFeedback(2, "Невідповідність властивостей об'єктам документа (-0.5 б.).");
+    }
+  }
+
+  function selectCard(group, val, el) {
+    cardAnswers[group] = val;
+    document.querySelectorAll(`#grid-${group} .option-card`).forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function checkStep3() {
+    if (!cardAnswers['3a'] || !cardAnswers['3b']) {
+      showFeedback(3, "Обери формат для обох задач (А і Б).");
+      return;
+    }
+
+    if (cardAnswers['3a'] === 'PDF' && cardAnswers['3b'] === 'DOCX') {
+      goToStep(4);
+    } else {
+      updateScore(-0.5);
+      showFeedback(3, "Неправильний формат файлу для однієї із задач (-0.5 б.).");
+    }
+  }
+
+  function checkStep4() {
+    const a1 = document.getElementById('q4_1').value;
+    const a2 = document.getElementById('q4_2').value;
+    const a3 = document.getElementById('q4_3').value;
+
+    if (!a1 || !a2 || !a3) {
+      showFeedback(4, "Обери режим перегляду для всіх трьох ситуацій.");
+      return;
+    }
+
+    if (a1 === 'outline' && a2 === 'draft' && a3 === 'print') {
+      goToStep(5);
+    } else {
+      updateScore(-0.5);
+      showFeedback(4, "Перевір особливості режимів перегляду у таблиці 2.3 (-0.5 б.).");
+    }
+  }
+
+  function toggleSeq(el) {
+    const id = el.getAttribute('data-id');
+    if (pickedSequence.includes(id)) return;
+    pickedSequence.push(id);
+    el.classList.add('picked');
+    el.querySelector('.seq-badge').textContent = `Крок ${pickedSequence.length}`;
+  }
+
+  function resetSeq() {
+    pickedSequence = [];
+    document.querySelectorAll('.seq-item').forEach(el => {
+      el.classList.remove('picked');
+      el.querySelector('.seq-badge').textContent = 'Клікни';
+    });
+    document.getElementById('fb-5').style.display = 'none';
+  }
+
+  function checkStep5() {
+    if (pickedSequence.length < 4) {
+      showFeedback(5, "Обери порядок для всіх чотирьох дій.");
+      return;
+    }
+
+    if (pickedSequence.join('-') === '1-2-3-4') {
+      finishQuest();
+    } else {
+      updateScore(-0.5);
+      showFeedback(5, "Послідовність дій порушена! Натисни «Скинути порядок» і спробуй знову (-0.5 б.).");
+    }
+  }
+
+  function finishQuest() {
+    const elapsedSec = Math.floor((Date.now() - startTime) / 1000);
+    const mins = Math.floor(elapsedSec / 60);
+    const secs = elapsedSec % 60;
+    const finalGrade = Math.round(score);
+
+    document.getElementById('certName').textContent = studentName;
+    document.getElementById('certScore').textContent = `${finalGrade} балів (точний рейтинг: ${score})`;
+    document.getElementById('certTime').textContent = `${mins} хв ${secs} сек`;
+
+    // Простий контрольний код для перевірки вчителем
+    const raw = `${studentName}|${finalGrade}|${elapsedSec}`;
+    let hash = 0;
+    for (let i = 0; i < raw.length; i++) {
+      hash = ((hash << 5) - hash) + raw.charCodeAt(i);
+      hash |= 0;
+    }
+    const code = `NUS9-${finalGrade}B-${Math.abs(hash).toString(16).toUpperCase()}`;
+    document.getElementById('certHash').textContent = code;
+
+    goToStep(6);
+  }
+</script>
+
+</body>
+</html>
